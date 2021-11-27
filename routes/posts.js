@@ -97,12 +97,9 @@ router.get("/get/following/:userId", async (req, res) => {
 });
 
 //get all posts for a certain user
-router.get("/all_posts/", async (req, res) => {
-  const username = req.query.username;
+router.get("/all_posts/:userId", async (req, res) => {
   try {
-    const user = username
-      ? await User.findOne({ username: username })
-      : await User.findById(req.query.userId);
+    const user = await User.findById(req.params.userId);
     if (user) {
       const posts = await Post.find({ userId: { $eq: req.params.userId } });
       res.status(200).json(posts);

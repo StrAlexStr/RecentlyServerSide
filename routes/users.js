@@ -56,10 +56,10 @@ router.put("/:id", async (req, res) => {
 });
 
 //get all users (except the current one)
-router.get("/get/all", async (req, res) => {
+router.get("/get/all_users/:userId", async (req, res) => {
   try {
     const users = await User.find({
-      _id: { $nin: `${req.body.userId}` },
+      _id: { $nin: `${req.params.userId}` },
     });
     res.status(200).json(users);
   } catch (err) {
