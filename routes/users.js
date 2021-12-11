@@ -1,9 +1,9 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const User = require("../models/User");
-
+const verifyToken = require("../verifyToken");
 //get a user
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   const username = req.query.username;
   try {
     const user = username
@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
 });
 
 //delete user
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", verifyToken, async (req, res) => {
   if (req.body.userId == req.params.id) {
     try {
       const user = await User.findByIdAndDelete(req.params.id);
@@ -32,7 +32,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 //update user (maybe we will use it later)
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   if (req.body.userId == req.params.id) {
     if (req.body.password) {
       try {
@@ -55,8 +55,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-//get all users (except the current one)
-router.get("/get/all_users/:userId", async (req, res) => {
+// all users (except the current one)
+router.get("/get/all_users/:userId", verifyToken, async (req, res) => {
   try {
     const users = await User.find({
       _id: { $nin: `${req.params.userId}` },
@@ -71,14 +71,16 @@ router.get("/get/all_users/:userId", async (req, res) => {
 //get following (implement if needed)
 
 //follow a user
-router.put("/follow/:id", async (req, res) => {
+router.put("/follow/:id", verifyToken, async (req, res) => {
   if (req.body.userId != req.params.id) {
     try {
       const toFollowUser = await User.findById(req.params.id);
       const baseUser = await User.findById(req.body.userId);
       if (!baseUser.following.includes(req.params.id)) {
         await baseUser.updateOne({ $push: { following: req.params.id } });
-        await toFollowUser.updateOne({ $push: { followers: req.body.userId } });
+        await toFollowUser.updateOne({
+          $push: { followers: req.body.userId },
+        });
         res
           .status(200)
           .json(
@@ -97,7 +99,7 @@ router.put("/follow/:id", async (req, res) => {
 
 //unfollow a user
 
-router.put("/unfollow/:id", async (req, res) => {
+router.put("/unfollow/:id", verifyToken, async (req, res) => {
   if (req.body.userId != req.params.id) {
     try {
       const toUnfollowUser = await User.findById(req.params.id);
@@ -113,7 +115,7 @@ router.put("/unfollow/:id", async (req, res) => {
             `user ${req.params.id} has been unfollowed by ${req.body.userId}`
           );
       } else {
-        res.status(403).json("User is not followed already");
+        res.status(403).json("User is unfollowed already");
       }
     } catch (err) {
       res.status(500).json(err);

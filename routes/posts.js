@@ -1,9 +1,9 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const Post = require("../models/Post");
-
+const verifyToken = require("../verifyToken");
 //get a post
-router.get("/:id", async (req, res) => {
+router.get("/:id", verifyToken, async (req, res) => {
   try {
     const thePost = await Post.findById(req.params.id);
     res.status(200).json(thePost);
@@ -13,7 +13,7 @@ router.get("/:id", async (req, res) => {
 });
 
 //create a post
-router.post("/create", async (req, res) => {
+router.post("/create", verifyToken, async (req, res) => {
   try {
     const baseUser = await User.findById(req.body.userId);
     if (baseUser) {
@@ -30,10 +30,11 @@ router.post("/create", async (req, res) => {
 });
 
 //delete a post (only yours)
-router.delete("/:id", async (req, res) => {
+//didn't work to send the userId through req.body
+router.delete("/:postId/:userId", verifyToken, async (req, res) => {
   try {
-    const postToDelete = await Post.findById(req.params.id);
-    if (postToDelete.userId == req.body.userId) {
+    const postToDelete = await Post.findById(req.params.postId);
+    if (postToDelete.userId === req.params.userId) {
       const deletedPost = await postToDelete.deleteOne();
       res.status(200).json(deletedPost);
     } else {
@@ -46,7 +47,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 //update a post (only yours)
-router.put("/:id", async (req, res) => {
+router.put("/:id", verifyToken, async (req, res) => {
   try {
     const postToUpdate = await Post.findById(req.params.id);
     if (postToUpdate.userId == req.body.userId) {
@@ -62,7 +63,7 @@ router.put("/:id", async (req, res) => {
 });
 
 //get all the posts(except yours)
-router.get("/get/all_posts/:userId", async (req, res) => {
+router.get("/get/all_posts/:userId", verifyToken, async (req, res) => {
   try {
     const baseUser = await User.findById(req.params.userId);
     if (baseUser) {
@@ -79,7 +80,7 @@ router.get("/get/all_posts/:userId", async (req, res) => {
 });
 
 //get all following posts
-router.get("/get/following/:userId", async (req, res) => {
+router.get("/get/following/:userId", verifyToken, async (req, res) => {
   try {
     const baseUser = await User.findById(req.params.userId);
     if (baseUser) {
@@ -97,7 +98,7 @@ router.get("/get/following/:userId", async (req, res) => {
 });
 
 //get all posts for a certain user
-router.get("/all_posts/:userId", async (req, res) => {
+router.get("/all_posts/:userId", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.params.userId);
     if (user) {
