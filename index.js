@@ -83,3 +83,7 @@ app.use("/api/auth", authRoute);
 app.listen(8900, () => {
   console.log("Backend server is running on port 8900!");
 });
+
+app.get("/", (req, res) => {
+  res.send("Welcome to Recently server side!");
+});

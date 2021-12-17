@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const UserSchema = new mongoose.Schema(
   {
     username: {
@@ -23,11 +22,7 @@ const UserSchema = new mongoose.Schema(
     profilePicture: {
       type: String,
       default: "",
-    }, //See later what to do with theese
-    coverPicture: {
-      type: String,
-      default: "",
-    }, //See later what to do with theese
+    },
     followers: {
       type: Array,
       default: [],
@@ -39,15 +34,14 @@ const UserSchema = new mongoose.Schema(
     dob: {
       type: Date,
       required: true,
-    }, // min max for the date according to the UI
+    },
     gender: {
       type: Number,
       required: true,
-      min: 0, //Male,Female,Other(Custom)
+      min: 0,
       max: 2,
     },
   },
   { timestamps: true }
 );
-
 module.exports = mongoose.model("User", UserSchema);
